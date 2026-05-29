@@ -1,0 +1,42 @@
+# .github/workflows/inject-mapbox-token.yml
+# Workflow: inject Mapbox token from GitHub secret into Angular environment file during CI
+# Trigger on pushes to any branch (or you can limit to main/release)
+
+name: Inject Mapbox Token
+
+on:
+  push:
+    paths:
+      - "src/environments/environment.ts"
+      - ".github/workflows/inject-mapbox-token.yml"
+
+jobs:
+  inject-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Replace placeholder with secret token
+        # The placeholder in environment.ts is 'YOUR_MAPBOX_TOKEN_HERE'
+        run: |
+          sed -i "s|YOUR_MAPBOX_TOKEN_HERE|${{ secrets.MAPBOX_TOKEN }}|g" src/environments/environment.ts
+
+      - name: Build Angular app (production)
+        run: npm run build -- --configuration production
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: angular-dist
+          path: dist/**
+
+# Note: Ensure you have added a repository secret named MAPBOX_TOKEN containing your Mapbox access token.
