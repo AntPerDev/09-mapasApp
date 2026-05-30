@@ -4,7 +4,9 @@
 
 export const environment = {
   production: false,
-  mapboxToken: 'YOUR_MAPBOX_TOKEN_HERE',
+  // Token is read from the MAPBOX_TOKEN environment variable if present.
+  // This enables CI secrets integration without hard‑coding the key.
+  mapboxToken: (typeof process !== 'undefined' && (process as any).env && (process as any).env.MAPBOX_TOKEN) ? (process as any).env.MAPBOX_TOKEN : 'YOUR_MAPBOX_TOKEN_HERE',
 };
 
 /*
